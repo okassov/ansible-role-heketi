@@ -1,0 +1,57 @@
+---
+
+- name: "install | Create Heketi Installation directory"
+  file:
+    path: "{{ heketi_install_dir }}"
+    state: directory
+
+- name: "install | Create Heketi Client Installation directory"
+  file:
+    path: "{{ heketi_install_client_dir }}"
+    state: directory
+
+- name: "install | Unarchive Downloaded Heketi archives"
+  unarchive:
+    src: "{{ dl_file }}"
+    dest: "{{ heketi_install_dir }}"
+    creates: "{{ heketi_install_dir }}/heketi"
+    remote_src: true
+    extra_opts:
+      - --strip-components=1
+
+- name: "install | Unarchive Downloaded Heketi Client archives"
+  unarchive:
+    src: "{{ dl_c_file }}"
+    dest: "{{ heketi_install_client_dir }}"
+    creates: "{{ heketi_install_client_dir }}/bin/heketi-cli"
+    remote_src: true
+    extra_opts:
+      - --strip-components=1
+
+- name: "install | Create Heketi Symlink in /usr/bin"
+  file:
+    src: "{{ heketi_install_dir }}/heketi"
+    dest: "{{ heketi_install_command_link }}"
+    state: link
+
+- name: "install | Create Heketi CLI Symlink in /usr/bin"
+  file:
+    src: "{{ heketi_install_client_dir }}/bin/heketi-cli"
+    dest: "{{ heketi_cli_install_command_link }}"
+    state: link
+
+- name: "install | Update Heketi install directory. Ownership to {{ heketi_service_user }}"
+  file:
+    path: "{{ heketi_install_dir }}"
+    state: directory
+    owner: "{{ heketi_service_user }}"
+    group: "{{ heketi_service_user }}"
+    recurse: true
+
+- name: "install | Update Heketi Client install directory. Ownership to {{ heketi_service_user }}"
+  file:
+    path: "{{ heketi_install_client_dir }}"
+    state: directory
+    owner: "{{ heketi_service_user }}"
+    group: "{{ heketi_service_user }}"
+    recurse: true

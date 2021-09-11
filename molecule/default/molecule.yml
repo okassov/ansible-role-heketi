@@ -1,0 +1,39 @@
+---
+dependency:
+    name: galaxy
+driver:
+    name: docker
+platforms:
+  - name: instance
+    image: "geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest"
+    command: ${MOLECULE_DOCKER_COMMAND:-""}
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    networks:
+      - name: ${MOLECULE_DISTRO:-ubuntu2004}-${CI_PROJECT_NAME:-default}
+    privileged: true
+    pre_build_image: true
+provisioner:
+    name: ansible
+    playbooks:
+      converge: ${MOLECULE_PLAYBOOK:-converge.yml}
+  inventory:
+    group_vars:
+      all:
+    heketi_install: true
+    heketi_inititalize_cluster: false
+    heketi_install_version: "9.0.0"
+    heketi_configure: true
+    heketi_service_user: "root"
+    heketi_node_source_ssh_keyfile: "keys/heketi_rsa"
+    heketi_node_source_ssh_keyfile_pub: "keys/heketi_rsa.pub"
+    heketi_node_ssh_user: "admin"
+    heketi_node_ssh_pass: "admin"
+    host_vars:
+      instance:
+scenario:
+    name: default
+verifier:
+    name: testinfra
+    lint:
+        name: flake8

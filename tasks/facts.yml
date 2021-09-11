@@ -1,0 +1,37 @@
+---
+
+- name: set_facts | Define commons facts
+  set_fact:
+    install_arch: "{{ heketi_install_arch | default('amd64') }}"
+    install_version: "{{ heketi_install_version | default('9.0.0') }}"
+
+- name: set_facts | Check Heketi required 'heketi_install_arch' parameter value
+  fail:
+    msg: "Valeurs permises [heketi_install_arch] : [amd, amd64, arm, arm64]"
+  when:
+    - install_arch not in ["amd", "amd64", "arm", "arm64"]
+    - heketi_install|bool
+
+- name: set_facts | Check Heketi Source SSH Key File
+  fail:
+    msg: "You must to define source_ssh_keyfile variable"
+  when:
+    - heketi_node_source_ssh_keyfile is not defined
+    - heketi_node_executor == 'ssh'
+    - heketi_install|bool
+
+- name: set_facts | Check Heketi SSH Key File
+  fail:
+    msg: "You must to define node_ssh_keyfile variable"
+  when:
+    - heketi_node_ssh_keyfile is not defined
+    - heketi_node_executor == 'ssh'
+    - heketi_install|bool
+
+- name: set_facts | Check Heketi SSH User name
+  fail:
+    msg: "You must to define ssh_user variable for heketi"
+  when:
+    - heketi_node_ssh_user is not defined
+    - heketi_node_executor == 'ssh'
+    - heketi_install|bool

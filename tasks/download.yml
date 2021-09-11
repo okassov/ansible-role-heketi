@@ -1,0 +1,11 @@
+---
+
+- name: download | Download Heketi Server
+  get_url:
+    url: "{{ dl_url }}"
+    dest: "{{ dl_file }}"
+
+- name: download | Download Heketi Client
+  get_url:
+    url: "{{ dl_c_url }}"
+    dest: "{{ dl_c_file }}"

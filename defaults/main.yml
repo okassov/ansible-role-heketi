@@ -1,10 +1,3 @@
-# Ansible role for Heketi
-
-Install Heketi for managing GlusterFS volumes
-
-## Variables
-
-```yaml
 ---
 
 heketi_install_arch: 'amd64'
@@ -81,15 +74,3 @@ heketi_node_ssh_port: '22'
 heketi_node_source_ssh_keyfile: "keys/heketi_rsa"
 heketi_node_source_ssh_keyfile_pub: "keys/heketi_rsa.pub"
 heketi_node_ssh_keyfile: "/etc/ssh/heketi_rsa"
-```
-
-## Dependencies
-None
-
-## Examples
- - [playbook](examples/playbook.yaml)
- - [inventory](examples/inventory.yaml)
-
-## License
-
-MIT

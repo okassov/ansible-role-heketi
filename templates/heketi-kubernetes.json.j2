@@ -1,0 +1,54 @@
+{
+	"port": "{{ heketi_http_port }}",
+	"enable_tls": {{ heketi_tls_enabled | lower }},
+	"cert_file": "{{ heketi_cert_file }}",
+	"key_file": "{{ heketi_key_file }}",
+	"use_auth": {{ heketi_use_auth | lower }},
+	"jwt": {
+		"admin": {
+			"key": "{{ heketi_admin_token }}"
+		},
+		"user": {
+			"key": "{{ heketi_user_token }}"
+		}
+	},
+	"backup_db_to_kube_secret": {{ heketi_backup_db_to_kube_secret | lower }},
+	"profiling": {{ heketi_profiling | lower }},
+	"glusterfs": {
+		"executor": "kubernetes",
+		"kubeexec": {
+			"host" :"{{ heketi_node_kubernetes_url }}",
+			"cert" : "{{ heketi_node_kubernetes_certfile }}",
+			"insecure": {{ heketi_node_kubernetes_insecure }},
+			"user": "{{ heketi_node_kubernetes_suer }}",
+			"password": "{{ heketi_node_kubernetes_apssword }}",
+			"namespace": "{{ heketi_node_kubernetes_namespace }}",
+			"fstab": "{{ heketi_node_fstab }}",
+			"pv_data_alignment": "{{ heketi_node_pv_data_alignment }}",
+			"vg_physicalextentsize": "{{ heketi_node_vg_physicalextentsize }}",
+			"lv_chunksize": "{{ heketi_node_lv_chunksize }}",
+			{% if heketi_node_xfs_sw is defined and heketi_node_xfs_sw|trim != '' %}
+			"xfs_sw": {{ heketi_node_xfs_sw }},
+			{% endif %}
+			{% if heketi_node_xfs_su is defined and heketi_node_xfs_su|trim != '' %}
+			"xfs_su": {{ heketi_node_xfs_su }},
+			{% endif %}
+			"backup_lvm_metadata": {{ heketi_node_backup_lvm_metadata | lower }},
+			"gluster_cli_timeout": {{ heketi_node_cli_timeout }},
+			"debug_umount_failures": {{ heketi_node_debug_umount_failures | lower }},
+			"brick_max_size_gb" : 1024,
+			"brick_min_size_gb" : 1,
+			"max_bricks_per_volume" : 33
+		},
+		
+		"db": "{{ heketi_data_dir }}/{{ heketi_db_name }}",
+		"refresh_time_monitor_gluster_nodes": {{ heketi_node_refresh_time_monitor_gluster }},
+		"start_time_monitor_gluster_nodes": {{ heketi_node_start_time_monitor_gluster }},
+		"loglevel" : "{{ heketi_loglevel }}",
+		"auto_create_block_hosting_volume": {{ heketi_node_auto_create_block_hosting_volume | lower }},
+		"block_hosting_volume_size": {{ heketi_node_block_hosting_volume_size }},
+		"block_hosting_volume_options": "{{ heketi_node_block_hosting_volume_options }}",
+		"pre_request_volume_options": "{{ heketi_node_pre_request_volume_options }}",
+		"post_request_volume_options": "{{ heketi_node_post_request_volume_options }}"
+  }
+}

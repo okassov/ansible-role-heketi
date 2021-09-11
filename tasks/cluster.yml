@@ -1,0 +1,10 @@
+---
+
+- name: "initialize cluster | Check node list"
+  shell: "heketi-cli node list | wc -l"
+  changed_when: false
+  register: node_list
+
+- name: "initialize cluster | Topology load"
+  command: "heketi-cli topology load --user {{ heketi_node_ssh_user }} --json={{ heketi_config_client_dir }}/{{ heketi_config_client_filename }}"
+  when: (node_list.stdout | int < glusterfs_hosts_count | int) and heketi_inititalize_cluster

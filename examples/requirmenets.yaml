@@ -1,0 +1,9 @@
+---
+
+roles:
+  - src: git+git@gitlab.example.com:devops/ansible/roles/manage-lvm.git
+    version: v1.0.0
+  - src: git+git@gitlab.example.com:devops/ansible/roles/glusterfs.git
+    version: v1.0.0
+  - src: git+git@gitlab.example.com:devops/ansible/roles/heketi.git
+    version: v1.0.0

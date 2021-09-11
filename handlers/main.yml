@@ -1,0 +1,6 @@
+---
+
+- name: "handler | restart heketi"
+  systemd:
+    name: "{{ heketi_service_filename.split('.')[0] }}"
+    state: restarted

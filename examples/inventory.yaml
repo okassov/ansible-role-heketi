@@ -1,0 +1,51 @@
+---
+
+glusterfs:
+  vars:
+    glusterfs_version: 8
+    glusterfs_server_group: glusterfs
+    glusterfs_bricks_dir: /data
+    glusterfs_config: true
+    glusterfs_hosts_count: "{{ groups['glusterfs'] | length }}"
+
+    heketi_install: true
+    heketi_inititalize_cluster: true
+    heketi_install_version: "9.0.0"
+    heketi_configure: true
+    heketi_service_user: "root"
+    heketi_node_source_ssh_keyfile: "keys/heketi_rsa"
+    heketi_node_source_ssh_keyfile_pub: "keys/heketi_rsa.pub"
+    heketi_node_ssh_user: "admin"
+    heketi_node_ssh_pass: "admin"
+    heketi_config_topology_nodes:
+      - zone: 1
+        manage_host_names:
+          - "node1"
+        storage_host_names:
+          - "192.168.1.200"
+        devices:
+          - name: "/dev/sdb"
+            destroydata: false
+      - zone: 1
+        manage_host_names:
+          - "node2"
+        storage_host_names:
+          - "192.168.1.201"
+        devices:
+          - name: "/dev/sdb"
+            destroydata: false
+      - zone: 1
+        manage_host_names:
+          - "node3"
+        storage_host_names:
+          - "192.168.1.202"
+        devices:
+          - name: "/dev/sdb"
+            destroydata: false
+  hosts:
+    node1:
+      ansible_host: 192.168.1.200
+    node2:
+      ansible_host: 192.168.1.201
+    node3:
+      ansible_host: 192.168.1.202

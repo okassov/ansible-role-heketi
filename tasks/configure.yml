@@ -1,0 +1,95 @@
+---
+
+- name: "configure | Create Heketi Configuration directory"
+  file:
+    path: "{{ heketi_config_dir }}"
+    state: directory
+
+- name: "configure | Create Heketi Keys directory"
+  file:
+    path: "{{ heketi_node_ssh_keyfile | dirname }}"
+    state: directory
+
+- name: "configure | Create Heketi Client Configuration directory"
+  file:
+    path: "{{ heketi_config_client_dir }}"
+    state: directory
+
+- name: "configure | Create Heketi Data directory"
+  file:
+    path: "{{ heketi_data_dir }}"
+    state: directory
+
+- name: "configure | Ensure Heketi key is added"
+  copy:
+    src: "{{ heketi_node_source_ssh_keyfile }}"
+    dest: "{{ heketi_node_ssh_keyfile }}"
+    owner: "{{ heketi_service_user }}"
+    mode: "0600"
+
+- name: "configure | Initialize Heketi Configuration template"
+  copy:
+    content: "{{ lookup('template', 'templates/heketi-' + heketi_node_executor + '.json.j2') | to_nice_json }}"
+    dest: "{{ heketi_config_dir }}/{{ heketi_config_filename }}"
+    mode: "0644"
+  notify: restart heketi
+
+- name: "configure | Update config directory. Ownership to {{ heketi_service_user }}"
+  file:
+    path: "{{ heketi_config_dir }}"
+    state: directory
+    owner: "{{ heketi_service_user }}"
+    group: "{{ heketi_service_user }}"
+    recurse: true
+
+- name: "configure | Update Client config directory. Ownership to {{ heketi_service_user }}"
+  file:
+    path: "{{ heketi_config_client_dir }}"
+    state: directory
+
+- name: "configure | Initialize Heketi Client Configuration template"
+  copy:
+    content: "{{ lookup('template', 'templates/heketi-topology.json.j2') | to_nice_json }}"
+    dest: "{{ heketi_config_client_dir }}/{{ heketi_config_client_filename }}"
+    mode: "0644"
+
+- name: "configure | Update data directory. Ownership to {{ heketi_service_user }}"
+  file:
+    path: "{{ heketi_data_dir }}"
+    state: directory
+    owner: "{{ heketi_service_user }}"
+    group: "{{ heketi_service_user }}"
+    recurse: true
+
+- name: "configure | Initialize Heketi Service template"
+  template:
+    src: "{{ heketi_service_template }}"
+    dest: "{{ heketi_service_unit_dir }}/{{ heketi_service_filename }}"
+
+- name: "configure | Service Tasks block on OS other than CentOS"
+  block:
+
+    - name: "configure |  Create Heketi Service Working directory"
+      file:
+        path: "{{ heketi_service_working_dir }}"
+        state: directory
+
+    - name: "configure | Update service working directory. Ownership to {{ heketi_service_user }}"
+      file:
+        path: "{{ heketi_service_working_dir }}"
+        state: directory
+        owner: "{{ heketi_service_user }}"
+        group: "{{ heketi_service_user }}"
+        recurse: true
+
+  when:
+    - ansible_distribution != "CentOS"
+
+- name: "configure | Reload Heketi Service"
+  systemd:
+    name: "{{ heketi_service_filename.split('.')[0] }}"
+    enabled: true
+    daemon_reload: true
+    state: restarted
+  changed_when: false
+  failed_when: false

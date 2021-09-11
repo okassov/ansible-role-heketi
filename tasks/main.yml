@@ -1,0 +1,30 @@
+---
+
+- name: "main | Install Heketi main tasks on Supported system"
+  block:
+
+    - name: "main | Include facts tasks"
+      include_tasks: "facts.yml"
+
+    - name: "main | Include download tasks"
+      include_tasks: "download.yml"
+      when:
+        - heketi_install|bool
+
+    - name: "main | Include install tasks"
+      include_tasks: "install.yml"
+      when:
+        - heketi_install|bool
+
+    - name: "main | Include configure tasks"
+      include_tasks: "configure.yml"
+      when:
+        - heketi_configure|bool
+
+    - name: "main | Include cluster tasks"
+      include_tasks: "cluster.yml"
+      when:
+        - heketi_inititalize_cluster|bool
+
+  when:
+    - ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "Ubuntu"

@@ -1,0 +1,40 @@
+{
+  "clusters": [
+    {
+      "nodes": [
+        {% for node in heketi_config_topology_nodes | default([]) %}
+        {
+          "node":
+          {
+  					"hostnames":
+  					{
+  						"manage": 
+  						[
+  							{% for manage_host in node.manage_host_names | default([]) %}
+  							"{{ manage_host }}"{% if loop.index < loop.length %},{% endif %}
+  							{% endfor %}
+  						],
+              			"storage": 
+  						[
+  							{% for storage_host in node.storage_host_names | default([]) %}
+  							"{{ storage_host }}"{% if loop.index < loop.length %},{% endif %}
+  							{% endfor %}
+  						]
+  					},
+  					"zone": {{ node.zone | default(1) }}
+  				},
+  				"devices" : 
+  				[
+  					{% for device in node.devices | default([]) %}
+  					{
+  						"name": "{{ device.name }}",
+  						"destroydata": {{ device.destroydata | lower }}
+  					}{% if loop.index < loop.length %},{% endif %}
+  					{% endfor %}
+  				]
+  			}{% if loop.index < loop.length %},{% endif %}
+  			{% endfor %}
+  		]
+  	}
+  ]
+}

@@ -1,0 +1,74 @@
+---
+
+- hosts: glusterfs
+  pre_tasks:
+
+    - name: "pre_task | Add IP address of all hosts to all hosts"
+      lineinfile:
+        dest: /etc/hosts
+        regexp: '.*{{ item }}$'
+        line: "{{ hostvars[item].ansible_host }} {{item}}"
+        state: present
+      when: hostvars[item].ansible_host is defined
+      with_items: "{{ groups.glusterfs }}"
+
+    - name: "pre_task | Create ssh user for Heketi"
+      user:
+        name: "{{ heketi_node_ssh_user }}"
+        password: "{{ heketi_node_ssh_pass }}"
+        groups: 
+          - sudo
+        append: yes
+        create_home: yes
+        shell: /bin/bash
+        state: present
+      when: heketi_node_ssh_user != 'root'
+      tags:
+        - pre_task
+
+    - name: "pre_task | Ensure that ssh directory for Heketi user exist"
+      file:
+        path: "/home/{{ heketi_node_ssh_user }}/.ssh"
+        state: directory
+        owner: "{{ heketi_node_ssh_user }}"
+        group: "{{ heketi_node_ssh_user }}"
+        mode: '0755'
+      when: heketi_node_ssh_user != 'root'
+      tags:
+        - pre_task
+
+    - name: "pre_task | Upload public ssh key to Heketi user authorized_keys"
+      copy:
+        src: "{{ heketi_node_source_ssh_keyfile_pub }}"
+        dest: "/home/{{ heketi_node_ssh_user }}/.ssh/authorized_keys"
+        owner: "{{ heketi_node_ssh_user }}"
+        group: "{{ heketi_node_ssh_user }}"
+        mode: '0644'
+      when: heketi_node_ssh_user != 'root'
+      tags:
+        - pre_task
+
+    - name: "pre_task | Allow passwordless sudo to Heketi user"
+      lineinfile:
+        dest: "/etc/sudoers.d/{{ heketi_node_ssh_user }}"
+        state: present
+        create: yes
+        regexp: '^{{ heketi_node_ssh_user }}'
+        line: '{{ heketi_node_ssh_user }} ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+      when: heketi_node_ssh_user != 'root'
+      tags:
+        - pre_task
+
+### Install GlusterFS cluster
+  roles:
+    - role: glusterfs
+      tags:
+        - glusterfs
+
+### Install Heketi on node1
+- hosts: node1
+  roles:
+    - role: heketi
+      tags:
+        - heketi

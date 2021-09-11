@@ -1,0 +1,14 @@
+[Unit]
+Description={{ heketi_service_unit_description }}
+
+[Service]
+Type=simple
+WorkingDirectory={{ heketi_service_working_dir }}
+User={{ heketi_service_user }}
+ExecStart=/usr/bin/heketi --config={{ heketi_config_dir }}/{{ heketi_config_filename }}
+Restart=on-failure
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
